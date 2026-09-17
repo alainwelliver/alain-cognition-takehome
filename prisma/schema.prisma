@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ADMIN_DATABASE_URL")
+}
+
+model User {
+  id    String @id
+  name  String
+  role  String
+  email String @unique
+
+  @@map("users")
+}
+
+model AuditLog {
+  id       Int      @id @default(autoincrement())
+  at       DateTime @default(now())
+  actorId  String   @map("actor_id")
+  action   String
+  entity   String
+  before   Json?
+  after    Json?
+  prevHash String   @map("prev_hash")
+  hash     String   @unique
+
+  @@map("audit_log")
+}
+
+model Approval {
+  id           String    @id @default(uuid())
+  kind         String
+  payload      Json
+  status       String    @default("pending")
+  proposedById String    @map("proposed_by_id")
+  proposedAt   DateTime  @default(now()) @map("proposed_at")
+  decidedById  String?   @map("decided_by_id")
+  decidedAt    DateTime? @map("decided_at")
+  rejectReason String?   @map("reject_reason")
+  executedAt   DateTime? @map("executed_at")
+  result       Json?
+
+  @@map("approvals")
+}
