@@ -1,22 +1,18 @@
 import { auth } from "@/platform";
 import { switchUser } from "./actions";
+import { UserSelect } from "./user-select";
 
 /** The stubbed sign-in: pick a seeded user, the choice lands in a cookie. */
 export async function UserSwitcher() {
   const [current, users] = await Promise.all([auth.currentUser(), auth.switchableUsers()]);
   return (
-    <form action={switchUser}>
-      <label>
-        signed in as{" "}
-        <select key={current?.id ?? "none"} name="userId" defaultValue={current?.id ?? ""}>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name} ({user.role})
-            </option>
-          ))}
-        </select>
-      </label>{" "}
-      <button type="submit">switch</button>
+    <form action={switchUser} className="switcher">
+      <label htmlFor="userId">Acting as:</label>
+      <UserSelect
+        key={current?.id ?? "none"}
+        currentId={current?.id ?? ""}
+        users={users.map((u) => ({ id: u.id, label: `${u.name} (${u.role})` }))}
+      />
     </form>
   );
 }
