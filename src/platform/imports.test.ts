@@ -1,9 +1,9 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { violatesFence } from "./fence";
 
 const APPS_DIR = join(process.cwd(), "src", "apps");
-const FORBIDDEN = [/@prisma\/client/, /from\s+["'].*platform\/db["']/, /\bnew PrismaClient\b/];
 
 function walk(dir: string): string[] {
   let files: string[] = [];
@@ -24,8 +24,23 @@ describe("the app fence", () => {
     }
     const offenders = files.filter((file) => {
       const source = readFileSync(file, "utf8");
-      return FORBIDDEN.some((pattern) => pattern.test(source));
+      return violatesFence(source);
     });
     expect(offenders).toEqual([]);
+  });
+
+  it("an app cannot import the database client directly", () => {
+    for (const source of [
+      'import { db } from "@/platform/db"',
+      'import { db } from "../../platform/db"',
+      'import { PrismaClient } from "@prisma/client"',
+      "new PrismaClient()",
+    ]) {
+      expect(violatesFence(source)).toBe(true);
+    }
+  });
+
+  it("an app may import the platform read helper", () => {
+    expect(violatesFence('import { query, mutate } from "@/platform"')).toBe(false);
   });
 });

@@ -83,3 +83,15 @@ model Approval {
 
   @@map("approvals")
 }
+
+// app: flags
+model Flag {
+  key         String   @id
+  description String
+  dev         Boolean  @default(false)
+  staging     Boolean  @default(false)
+  prod        Boolean  @default(false)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("flags")
+}

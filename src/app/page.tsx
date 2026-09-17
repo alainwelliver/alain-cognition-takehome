@@ -11,6 +11,9 @@ export default function Home() {
       <p>
         <Link href="/refunds">Refunds</Link> · <Link href="/controls">Controls</Link>
       </p>
+      <p>
+        <Link href="/flags">Feature flags</Link>
+      </p>
     </>
   );
 }

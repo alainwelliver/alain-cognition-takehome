@@ -1,4 +1,5 @@
 export { mutate, type MutationResult } from "./mutate";
+export { query } from "./query";
 export { authorize, can, ForbiddenError, type Principal } from "./rbac/authorize";
 export { ACTIONS, ROLES, actionsForRole, isRole, type Action, type Role } from "./rbac/roles";
 export { auth, SeededAuthProvider, AUTH_COOKIE } from "./auth/seeded";

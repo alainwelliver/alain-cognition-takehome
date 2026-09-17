@@ -17,6 +17,15 @@ export const SEED_USERS = [
   { id: "u_lead", name: "Lena Lead", role: "eng_lead", email: "lena@example.test" },
 ];
 
+export const SEED_FLAGS = [
+  { key: "new_checkout", description: "Use the new checkout flow", dev: true, staging: true, prod: false },
+  { key: "dark_mode", description: "Enable dark mode", dev: true, staging: false, prod: false },
+  { key: "beta_dashboard", description: "Show the beta dashboard", dev: true, staging: true, prod: false },
+  { key: "rate_limit_v2", description: "Use the second rate limiter", dev: false, staging: true, prod: false },
+  { key: "export_csv", description: "Enable CSV exports", dev: true, staging: false, prod: true },
+  { key: "kyc_fast_path", description: "Enable the KYC fast path", dev: false, staging: false, prod: true },
+];
+
 /** app: refunds. Fake charges to search and refund in the demo. */
 export const SEED_TRANSACTIONS = [
   { id: "txn_1001", customer: "Ada Byron", description: "Pro plan, annual", amountCents: 24000, chargedAt: new Date("2026-01-14T10:00:00Z") },
@@ -36,6 +45,11 @@ async function main() {
     await db.user.upsert({ where: { id: user.id }, create: user, update: user });
   }
   console.log(`seeded ${SEED_USERS.length} users`);
+
+  for (const flag of SEED_FLAGS) {
+    await db.flag.upsert({ where: { key: flag.key }, create: flag, update: flag });
+  }
+  console.log(`seeded ${SEED_FLAGS.length} flags`);
 
   for (const transaction of SEED_TRANSACTIONS) {
     await db.transaction.upsert({
