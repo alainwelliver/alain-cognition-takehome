@@ -1,4 +1,5 @@
-import { auth, authorize } from "@/platform";
+import { auth } from "@/platform";
+import { forbiddenPanelFor } from "../ui";
 import { db } from "@/platform/db";
 import { RefundsPage, type PendingRow } from "@/apps/refunds/page";
 import { REFUND_KIND, parsePayload } from "@/apps/refunds/kind";
@@ -14,7 +15,8 @@ export default async function Page({
   const query = q ?? "";
   const user = await auth.currentUser();
   if (!user) return <p>No seeded users. Run <code>npm run db:seed</code>.</p>;
-  authorize(user, "refund.view");
+  const forbidden = forbiddenPanelFor(user, "refund.view");
+  if (forbidden) return forbidden;
 
   const where = query
     ? {
@@ -66,6 +68,7 @@ export default async function Page({
         amountCents: r.amountCents,
         reasonCode: r.reasonCode,
         approvalId: r.approvalId,
+        createdAt: r.createdAt,
       }))}
     />
   );

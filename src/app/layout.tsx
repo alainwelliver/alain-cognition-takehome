@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import "./globals.css";
 import { UserSwitcher } from "./user-switcher";
 
@@ -9,7 +10,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <header>
-          <strong>Internal tools foundation</strong>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Link href="/" className="brand">
+              Internal tools foundation
+            </Link>
+            <nav>
+              <Link href="/refunds">Refunds</Link>
+              <Link href="/flags">Feature flags</Link>
+              <Link href="/controls">Controls</Link>
+            </nav>
+          </div>
           <UserSwitcher />
         </header>
         <main>{children}</main>
