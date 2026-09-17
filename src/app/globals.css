@@ -1,0 +1,41 @@
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+  color: #111;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #ddd;
+  background: #fafafa;
+}
+main {
+  padding: 1.5rem;
+  max-width: 60rem;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.85rem;
+}
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+code {
+  font-size: 0.85rem;
+}
+.ok {
+  color: #0a7d27;
+  font-weight: 600;
+}
+.bad {
+  color: #b3261e;
+  font-weight: 600;
+}
