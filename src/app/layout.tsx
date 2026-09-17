@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Link href="/" className="brand">
-              Internal tools foundation
+              Cognition<span>/ internal tools</span>
             </Link>
             <nav>
               <Link href="/refunds">Refunds</Link>

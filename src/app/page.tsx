@@ -3,10 +3,10 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-      <h1>Foundation</h1>
+      <h1>Internal tools, built like software.</h1>
       <p className="muted">
-        Auth stub, RBAC, hash-chained audit log and maker-checker approvals, with thin apps built
-        on top.
+        One platform for sign-in, permissions, an append-only audit chain and maker-checker
+        approvals. Every app on top is a thin, reviewable codebase.
       </p>
       <div className="cards">
         <Link href="/refunds" className="card">
