@@ -30,6 +30,44 @@ model AuditLog {
   @@map("audit_log")
 }
 
+// app: refunds
+model Transaction {
+  id          String   @id
+  customer    String
+  description String
+  amountCents Int      @map("amount_cents")
+  currency    String   @default("USD")
+  chargedAt   DateTime @map("charged_at")
+  refunds     Refund[]
+
+  @@map("refunds_transactions")
+}
+
+// app: refunds
+model Refund {
+  id            String      @id @default(uuid())
+  transactionId String      @map("transaction_id")
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  amountCents   Int         @map("amount_cents")
+  reasonCode    String      @map("reason_code")
+  approvalId    String      @unique @map("approval_id")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map("refunds_refunds")
+}
+
+// app: refunds
+model PaymentProviderCall {
+  id             Int      @id @default(autoincrement())
+  idempotencyKey String   @unique @map("idempotency_key")
+  transactionId  String   @map("transaction_id")
+  amountCents    Int      @map("amount_cents")
+  providerRef    String   @map("provider_ref")
+  at             DateTime @default(now())
+
+  @@map("refunds_provider_calls")
+}
+
 model Approval {
   id           String    @id @default(uuid())
   kind         String
