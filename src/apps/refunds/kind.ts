@@ -1,8 +1,9 @@
-import { registerKind, type Tx } from "@/platform";
+import { registerKind, type Action, type Tx } from "@/platform";
 import { payments, type RefundReceipt } from "./payments";
 import { isReasonCode, type ReasonCode } from "./reasons";
 
 export const REFUND_KIND = "refund";
+export const SMALL_REFUND_LIMIT_CENTS = 5000;
 
 export interface RefundPayload {
   transactionId: string;
@@ -23,6 +24,12 @@ export function parsePayload(payload: unknown): RefundPayload {
   }
   if (!isReasonCode(reasonCode)) throw new Error(`unknown refund reason code: ${reasonCode}`);
   return { transactionId, amountCents, reasonCode, note };
+}
+
+export function approveActionFor(payload: unknown): Action {
+  return parsePayload(payload).amountCents < SMALL_REFUND_LIMIT_CENTS
+    ? "refund.approve.small"
+    : "refund.approve";
 }
 
 async function executeRefund(
@@ -64,6 +71,6 @@ async function executeRefund(
 
 registerKind(REFUND_KIND, {
   proposeAction: "refund.propose",
-  approveAction: "refund.approve",
+  approveAction: approveActionFor,
   execute: executeRefund,
 });

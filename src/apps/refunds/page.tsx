@@ -1,5 +1,6 @@
 import { can, type Principal } from "@/platform";
 import { approveRefund, proposeRefund, rejectRefund } from "./actions";
+import { approveActionFor } from "./kind";
 import { REASON_CODES } from "./reasons";
 
 export interface TransactionRow {
@@ -50,15 +51,15 @@ export function RefundsPage({
   refunds: RefundRow[];
 }) {
   const mayPropose = can(user, "refund.propose");
-  const mayApprove = can(user, "refund.approve");
 
   return (
     <>
       <h1>Refunds</h1>
       <p>
         Signed in as <code>{`${user.name} (${user.role})`}</code>. Proposing needs{" "}
-        <code>refund.propose</code>; deciding needs <code>refund.approve</code> and never works on
-        your own proposal.
+        <code>refund.propose</code>; deciding needs <code>refund.approve</code> (or{" "}
+        <code>refund.approve.small</code> for refunds under $50) and never works on your own
+        proposal.
       </p>
       {message ? <p className="ok">{message}</p> : null}
 
@@ -144,6 +145,15 @@ export function RefundsPage({
         <tbody>
           {pending.map((p) => {
             const ownProposal = p.proposedById === user.id;
+            const mayDecide = can(
+              user,
+              approveActionFor({
+                transactionId: p.transactionId,
+                amountCents: p.amountCents,
+                reasonCode: p.reasonCode,
+                note: p.note,
+              }),
+            );
             return (
               <tr key={p.id}>
                 <td>
@@ -157,7 +167,7 @@ export function RefundsPage({
                 <td>{p.note}</td>
                 <td>{p.proposedById}</td>
                 <td>
-                  {!mayApprove ? (
+                  {!mayDecide ? (
                     <em>not permitted</em>
                   ) : ownProposal ? (
                     <em>your own proposal</em>
