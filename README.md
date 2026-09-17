@@ -90,16 +90,18 @@ All times UTC, 2026-09-17. "Started" is the first commit on the branch.
 
 | Session | Asked for | Started | PR opened | Merged | Tier | Tests added | Where Alain intervened |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [#1](https://github.com/alainwelliver/alain-cognition-takehome/pull/1) | Change-tier classifier, CI and classify workflows | 21:24 | 21:24 | 21:28 | 2 | 13 (`scripts/classify/classify.test.ts`) | |
-| [#2](https://github.com/alainwelliver/alain-cognition-takehome/pull/2) | Document the change tiers | 21:26 | 21:26 | 21:27 | 0 | 0 | |
-| [#3](https://github.com/alainwelliver/alain-cognition-takehome/pull/3) | Placeholder KYC app page, to prove the tier 1 path | 21:28 | 21:28 | closed 21:33, not merged | 1 | 0 | |
-| [#4](https://github.com/alainwelliver/alain-cognition-takehome/pull/4) | Foundation: auth stub, RBAC, hash-chained audit log, approvals, `/controls` | 21:33 | 21:33 | 21:59 | 2 | 30 (`rbac`, `audit`, `approvals`, `imports`, `query`, `auth/oidc`) | |
-| [#5](https://github.com/alainwelliver/alain-cognition-takehome/pull/5) | Refunds app: search, propose, second-person approval, idempotent execution | 22:04 | 22:04 | 22:10 | 2 | 10 (`src/apps/refunds/refunds.test.ts`) | |
-| [#6](https://github.com/alainwelliver/alain-cognition-takehome/pull/6) | Feature flags app: dev/staging via `mutate`, prod via approvals, `GET /api/flags` | 22:11 | 22:14 | 22:16 | 2 | 10 (`src/apps/flags/flags.test.ts`) | |
-| [#7](https://github.com/alainwelliver/alain-cognition-takehome/pull/7) | Free-text notes on refund proposals, shown to the approver | 22:19 | 22:20 | 22:26 | 0 | 1 | |
-| [#8](https://github.com/alainwelliver/alain-cognition-takehome/pull/8) | Let support approve refunds under $50 | 22:22 | 22:22 (last push 22:39) | open, blocked pending code owner review | 2 | | |
-| [#10](https://github.com/alainwelliver/alain-cognition-takehome/pull/10) | Plain-English refund reason labels and a descriptive notes label | 22:35 | 22:35 | 22:36 | 0 | 1 | |
-| this one | This README | | | | 0 | 0 | |
+| [#1](https://github.com/alainwelliver/alain-cognition-takehome/pull/1) | Change-tier classifier, CI and classify workflows | 21:24 | 21:24 | 21:28 | 2 | 13 (`scripts/classify/classify.test.ts`) | none |
+| [#2](https://github.com/alainwelliver/alain-cognition-takehome/pull/2) | Document the change tiers | 21:26 | 21:26 | 21:27 | 0 | 0 | none |
+| [#3](https://github.com/alainwelliver/alain-cognition-takehome/pull/3) | Placeholder KYC app page, to prove the tier 1 path | 21:28 | 21:28 | closed 21:33, not merged | 1 | 0 | Closed it without merging: it only existed to prove the tier 1 path, and a placeholder page did not belong in the repo. |
+| [#4](https://github.com/alainwelliver/alain-cognition-takehome/pull/4) | Foundation: auth stub, RBAC, hash-chained audit log, approvals, `/controls` | 21:33 | 21:33 | 21:59 | 2 | 30 (`rbac`, `audit`, `approvals`, `imports`, `query`, `auth/oidc`) | Resolved merge conflicts in `package.json` and `package-lock.json` by hand. |
+| [#5](https://github.com/alainwelliver/alain-cognition-takehome/pull/5) | Refunds app: search, propose, second-person approval, idempotent execution | 22:04 | 22:04 | 22:10 | 2 | 10 (`src/apps/refunds/refunds.test.ts`) | none |
+| [#6](https://github.com/alainwelliver/alain-cognition-takehome/pull/6) | Feature flags app: dev/staging via `mutate`, prod via approvals, `GET /api/flags` | 22:11 | 22:14 | 22:16 | 2 | 10 (`src/apps/flags/flags.test.ts`) | none |
+| [#7](https://github.com/alainwelliver/alain-cognition-takehome/pull/7) | Free-text notes on refund proposals, shown to the approver | 22:19 | 22:20 | 22:26 | 0 | 1 | Auto-merge was not armed before CI went green, so merged it by hand. The next tier 0 PR merged itself with no clicks. |
+| [#8](https://github.com/alainwelliver/alain-cognition-takehome/pull/8) | Let support approve refunds under $50 | 22:22 | 22:22 (last push 22:39) | open, blocked pending code owner review | 2 | | Left open on purpose, so the code owner block can be seen holding. |
+| [#10](https://github.com/alainwelliver/alain-cognition-takehome/pull/10) | Plain-English refund reason labels and a descriptive notes label | 22:35 | 22:35 | 22:36 | 0 | 1 | none |
+| [#11](https://github.com/alainwelliver/alain-cognition-takehome/pull/11) | This README | 22:43 | 22:43 | 22:49 | 2 (root `README.md` matches no rule) | 0 | Approved and merged as code owner. |
+
+Alain set up the branch ruleset and `CODEOWNERS` by hand before any of this: a repo with no protection would have let every PR above merge regardless of tier.
 
 ## Next
 
