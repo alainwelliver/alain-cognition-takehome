@@ -11,7 +11,3 @@ registerKind(FLAG_PROD_KIND, {
     return { key, prod: value };
   },
 });
-
-export function ensureFlagKindRegistered(): void {
-  // Importing this module registers the kind once per process.
-}

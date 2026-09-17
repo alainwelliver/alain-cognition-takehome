@@ -6,34 +6,17 @@ import {
   reject,
   type MutationResult,
   type Principal,
-  query,
 } from "@/platform";
 import type { Env } from "./types";
-import { FLAG_PROD_KIND, ensureFlagKindRegistered } from "./kind";
+import { FLAG_PROD_KIND } from "./kind";
+import "./kind";
 
-ensureFlagKindRegistered();
-
-type ProdApproval = Awaited<ReturnType<typeof propose>>;
-
-export function setFlag(
-  user: Principal,
-  key: string,
-  env: "prod",
-  value: boolean,
-): ReturnType<typeof propose>;
-export function setFlag(
-  user: Principal,
-  key: string,
-  env: Exclude<Env, "prod">,
-  value: boolean,
-): Promise<unknown>;
-export function setFlag(
+export async function setFlag(
   user: Principal,
   key: string,
   env: Env,
   value: boolean,
-): Promise<ProdApproval | unknown>;
-export async function setFlag(user: Principal, key: string, env: Env, value: boolean): Promise<ProdApproval | unknown> {
+): Promise<unknown> {
   if (env === "prod") {
     return propose(user, FLAG_PROD_KIND, { key, value });
   }
@@ -53,13 +36,7 @@ export async function setFlag(user: Principal, key: string, env: Env, value: boo
 }
 
 export async function approveProd(user: Principal, approvalId: string) {
-  try {
-    await approve(user, approvalId);
-  } catch (error) {
-    if (!(error instanceof Error) || !/already (approved|executed)/i.test(error.message)) {
-      throw error;
-    }
-  }
+  await approve(user, approvalId);
   return execute(approvalId);
 }
 
@@ -76,8 +53,4 @@ export function createFlag(user: Principal, key: string, description: string) {
       result: flag,
     };
   });
-}
-
-export function getApproval(approvalId: string) {
-  return query((tx) => tx.approval.findUnique({ where: { id: approvalId } }));
 }

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { execute } from "@/platform";
 import { GET } from "../../app/api/flags/route";
 import { verifyChain } from "../../platform/audit/verify";
 import { adminTestDb, appTestDb, resetDatabase, USERS } from "../../test/db";
@@ -37,7 +38,7 @@ describe("feature flags", () => {
   });
 
   it("an engineer gets 403 when approving a prod change", async () => {
-    const approval = await setFlag(USERS.eli, "release_flag", "prod", true);
+    const approval = (await setFlag(USERS.eli, "release_flag", "prod", true)) as { id: string };
 
     await expect(approveProd(USERS.eli, approval.id)).rejects.toThrow(/403/);
   });
@@ -49,24 +50,25 @@ describe("feature flags", () => {
   });
 
   it("an eng lead approving a prod proposal executes it once and flips prod", async () => {
-    const approval = await setFlag(USERS.eli, "release_flag", "prod", true);
+    const approval = (await setFlag(USERS.eli, "release_flag", "prod", true)) as { id: string };
 
     await approveProd(USERS.lena, approval.id);
-    await approveProd(USERS.lena, approval.id);
+    await execute(approval.id);
 
     expect((await appTestDb.flag.findUniqueOrThrow({ where: { key: "release_flag" } })).prod).toBe(true);
+    expect((await appTestDb.approval.findUniqueOrThrow({ where: { id: approval.id } })).status).toBe("executed");
     expect(await appTestDb.auditLog.count()).toBe(3);
     expect(await verifyChain(appTestDb)).toEqual({ ok: true, rows: 3 });
   });
 
   it("the proposer cannot approve their own prod change", async () => {
-    const approval = await setFlag(USERS.lena, "release_flag", "prod", true);
+    const approval = (await setFlag(USERS.lena, "release_flag", "prod", true)) as { id: string };
 
     await expect(approveProd(USERS.lena, approval.id)).rejects.toThrow(/cannot decide their own proposal/);
   });
 
   it("rejecting a prod proposal leaves prod unchanged", async () => {
-    const approval = await setFlag(USERS.eli, "release_flag", "prod", true);
+    const approval = (await setFlag(USERS.eli, "release_flag", "prod", true)) as { id: string };
 
     await rejectProd(USERS.lena, approval.id, "not ready");
 
