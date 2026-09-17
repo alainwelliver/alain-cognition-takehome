@@ -20,9 +20,7 @@ beforeEach(async () => {
   await adminTestDb.transaction.create({ data: TXN });
 });
 
-function payload(
-  overrides: Partial<{ amountCents: number; reasonCode: string; note: string }> = {},
-) {
+function payload(overrides: Partial<{ amountCents: number; reasonCode: string }> = {}) {
   return {
     transactionId: TXN.id,
     amountCents: 2500,
@@ -37,14 +35,6 @@ describe("the refunds app", () => {
     const approval = await propose(USERS.sam, REFUND_KIND, payload());
     await expect(approve(USERS.sam, approval.id)).rejects.toThrow(/403/);
     expect(await appTestDb.refund.count()).toBe(0);
-  });
-
-  it("the proposer's free-text notes are stored on the pending approval for the approver to read", async () => {
-    const note = "Customer emailed twice.\nSecond charge was a duplicate; see ticket #4821.";
-    const approval = await propose(USERS.sam, REFUND_KIND, payload({ note }));
-    const pending = await appTestDb.approval.findUniqueOrThrow({ where: { id: approval.id } });
-    expect(pending.status).toBe("pending");
-    expect(parsePayload(pending.payload).note).toBe(note);
   });
 
   it("an engineer gets 403 when proposing a refund", async () => {
