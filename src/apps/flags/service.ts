@@ -9,7 +9,6 @@ import {
 } from "@/platform";
 import type { Env } from "./types";
 import { FLAG_PROD_KIND } from "./kind";
-import "./kind";
 
 export async function setFlag(
   user: Principal,

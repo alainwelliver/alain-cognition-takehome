@@ -5,11 +5,11 @@ export default function Home() {
     <>
       <h1>Foundation</h1>
       <p>
-        Auth stub, RBAC, hash-chained audit log and maker-checker approvals. No apps are built on
-        it yet.
+        Auth stub, RBAC, hash-chained audit log and maker-checker approvals, with thin apps built
+        on top.
       </p>
       <p>
-        <Link href="/controls">Controls</Link>
+        <Link href="/refunds">Refunds</Link> · <Link href="/controls">Controls</Link>
       </p>
       <p>
         <Link href="/flags">Feature flags</Link>

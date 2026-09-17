@@ -15,7 +15,9 @@ export const USERS = {
 };
 
 export async function resetDatabase() {
-  await adminTestDb.$executeRawUnsafe("TRUNCATE approvals, audit_log, flags RESTART IDENTITY");
+  await adminTestDb.$executeRawUnsafe(
+    "TRUNCATE refunds_refunds, refunds_provider_calls, refunds_transactions, approvals, audit_log, flags RESTART IDENTITY CASCADE",
+  );
   await adminTestDb.user.deleteMany();
   await adminTestDb.user.createMany({
     data: Object.values(USERS).map((u) => ({ ...u, email: `${u.id}@example.test` })),
