@@ -39,7 +39,7 @@ export default async function FlagsPage() {
                       <input type="hidden" name="env" value={env} />
                       <input type="hidden" name="value" value={String(!flag[env])} />
                       <button type="submit" disabled={!allowed}>
-                        {env === "prod" ? "propose" : flag[env] ? "on" : "off"}
+                        {flag[env] ? "on" : "off"}{env === "prod" ? ` (propose ${flag.prod ? "off" : "on"})` : ""}
                       </button>
                     </form>
                   </td>
