@@ -116,7 +116,12 @@ export function RefundsPage({
                           </option>
                         ))}
                       </select>
-                      <input type="text" name="note" placeholder="note (optional)" />
+                      <textarea
+                        name="note"
+                        rows={3}
+                        placeholder="notes for the approver (optional)"
+                        aria-label="notes for the approver"
+                      />
                       <button type="submit">Propose</button>
                     </form>
                   )}
@@ -136,7 +141,7 @@ export function RefundsPage({
             <th>transaction</th>
             <th>amount</th>
             <th>reason</th>
-            <th>note</th>
+            <th>notes</th>
             <th>proposed by</th>
             <th>decide</th>
           </tr>
@@ -154,7 +159,7 @@ export function RefundsPage({
                 </td>
                 <td>{money(p.amountCents)}</td>
                 <td>{p.reasonCode}</td>
-                <td>{p.note}</td>
+                <td style={{ whiteSpace: "pre-wrap" }}>{p.note || <em>none</em>}</td>
                 <td>{p.proposedById}</td>
                 <td>
                   {!mayApprove ? (
