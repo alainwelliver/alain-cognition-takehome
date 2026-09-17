@@ -4,11 +4,12 @@ import { db } from "@/platform/db";
 export const dynamic = "force-dynamic";
 
 export default async function ControlsPage() {
-  const [user, chain, rows, approvals] = await Promise.all([
+  const [user, chain, rows, approvals, providerCalls] = await Promise.all([
     auth.currentUser(),
     verifyChain(db),
     db.auditLog.findMany({ orderBy: { id: "desc" }, take: 20 }),
     db.approval.count(),
+    db.paymentProviderCall.count(),
   ]);
 
   return (
@@ -35,8 +36,9 @@ export default async function ControlsPage() {
 
       <h2>Approvals</h2>
       <p>
-        {approvals} proposal{approvals === 1 ? "" : "s"} recorded. No app is wired to an executor
-        yet, so the payment provider has recorded 0 calls.
+        {approvals} proposal{approvals === 1 ? "" : "s"} recorded. The fake payment provider has
+        recorded {providerCalls} call{providerCalls === 1 ? "" : "s"}, one per executed refund
+        approval.
       </p>
 
       <h2>Roles and permissions</h2>
