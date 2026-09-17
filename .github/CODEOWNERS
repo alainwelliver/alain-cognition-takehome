@@ -1,0 +1,10 @@
+# Tier 2 paths: any change here needs a code owner's approval.
+/src/platform/            @alainwelliver
+/prisma/schema.prisma     @alainwelliver
+/prisma/migrations/       @alainwelliver
+/.github/                 @alainwelliver
+/scripts/                 @alainwelliver
+/package.json             @alainwelliver
+/package-lock.json        @alainwelliver
+/docker-compose.yml       @alainwelliver
+/.env.example             @alainwelliver
