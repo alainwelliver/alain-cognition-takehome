@@ -3,6 +3,7 @@ import { adminTestDb, appTestDb, resetDatabase, USERS } from "../../test/db";
 import { approve, execute, propose, reject } from "@/platform";
 import { REFUND_KIND, parsePayload } from "./kind";
 import { REASON_CODES } from "./reasons";
+import { NOTE_LABEL, REASON_LABELS } from "./copy";
 
 const TXN = {
   id: "txn_test_1",
@@ -120,5 +121,16 @@ describe("the refunds app", () => {
 
   it("a proposal for a zero or negative amount is refused", () => {
     expect(() => parsePayload(payload({ amountCents: 0 }))).toThrow(/positive/);
+  });
+
+  it("every reason code has a plain-English label and the notes box says who it is for", () => {
+    for (const code of REASON_CODES) {
+      const label = REASON_LABELS[code];
+      expect(label).not.toBe(code);
+      expect(label).not.toMatch(/_/);
+      expect(label).toMatch(/^[A-Z]/);
+    }
+    expect(NOTE_LABEL).toMatch(/approver/i);
+    expect(NOTE_LABEL).toMatch(/optional/i);
   });
 });
