@@ -8,7 +8,7 @@ export async function UserSwitcher() {
     <form action={switchUser}>
       <label>
         signed in as{" "}
-        <select name="userId" defaultValue={current?.id ?? ""}>
+        <select key={current?.id ?? "none"} name="userId" defaultValue={current?.id ?? ""}>
           {users.map((user) => (
             <option key={user.id} value={user.id}>
               {user.name} ({user.role})
