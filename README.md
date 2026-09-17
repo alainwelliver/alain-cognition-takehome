@@ -9,8 +9,7 @@ Built in about two hours with Devin as a proof of concept for replacing Power Ap
 ```bash
 git clone https://github.com/alainwelliver/alain-cognition-takehome.git
 cd alain-cognition-takehome
-npm ci
-npm run demo     # docker compose up, migrate as admin, seed, next dev on :3000
+npm run demo     # creates .env, installs deps, docker compose up, migrate as admin, seed, next dev on :3000
 ```
 
 Then open http://localhost:3000 and pick a user from the header dropdown.
