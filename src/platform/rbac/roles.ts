@@ -2,6 +2,7 @@ export const ACTIONS = [
   "refund.view",
   "refund.propose",
   "refund.approve",
+  "refund.approve.small",
   "flag.view",
   "flag.edit.dev",
   "flag.edit.staging",
@@ -12,8 +13,8 @@ export const ACTIONS = [
 export type Action = (typeof ACTIONS)[number];
 
 export const ROLES = {
-  support: ["refund.view", "refund.propose"],
-  ops_lead: ["refund.view", "refund.propose", "refund.approve"],
+  support: ["refund.view", "refund.propose", "refund.approve.small"],
+  ops_lead: ["refund.view", "refund.propose", "refund.approve", "refund.approve.small"],
   engineer: ["flag.view", "flag.edit.dev", "flag.edit.staging", "flag.propose.prod"],
   eng_lead: [
     "flag.view",

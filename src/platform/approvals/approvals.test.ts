@@ -19,6 +19,15 @@ registerKind("refund", {
   },
 });
 
+registerKind("dynamic-refund", {
+  proposeAction: "refund.propose",
+  approveAction: (payload) =>
+    (payload as { small?: boolean }).small ? "refund.approve.small" : "refund.approve",
+  async execute() {
+    return null;
+  },
+});
+
 beforeEach(async () => {
   calls.length = 0;
   await resetDatabase();
@@ -44,6 +53,14 @@ describe("maker-checker approvals", () => {
     const decided = await approve(USERS.olivia, approval.id);
     expect(decided.status).toBe("approved");
     expect(decided.decidedById).toBe(USERS.olivia.id);
+  });
+
+  it("an approval kind can choose the approve action from the payload", async () => {
+    const small = await propose(USERS.olivia, "dynamic-refund", { small: true });
+    await expect(approve(USERS.sam, small.id)).resolves.toMatchObject({ status: "approved" });
+
+    const standard = await propose(USERS.olivia, "dynamic-refund", { small: false });
+    await expect(approve(USERS.sam, standard.id)).rejects.toThrow(/403/);
   });
 
   it("rejecting records the reason and blocks execution", async () => {

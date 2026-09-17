@@ -5,6 +5,12 @@ import { REFUND_KIND, parsePayload } from "./kind";
 import { REASON_CODES } from "./reasons";
 import { NOTE_LABEL, REASON_LABELS } from "./copy";
 
+const SIA = {
+  id: "u_support_2",
+  name: "Sia Support",
+  role: "support" as const,
+};
+
 const TXN = {
   id: "txn_test_1",
   customer: "Ada Byron",
@@ -15,6 +21,9 @@ const TXN = {
 
 beforeEach(async () => {
   await resetDatabase();
+  await adminTestDb.user.create({
+    data: { ...SIA, email: "u_support_2@example.test" },
+  });
   await adminTestDb.$executeRawUnsafe(
     "TRUNCATE refunds_refunds, refunds_provider_calls, refunds_transactions RESTART IDENTITY CASCADE",
   );
@@ -72,6 +81,28 @@ describe("the refunds app", () => {
     const calls = await appTestDb.paymentProviderCall.findMany();
     expect(calls).toHaveLength(1);
     expect(calls[0]).toMatchObject({ idempotencyKey: approval.id, amountCents: 2500 });
+  });
+
+  it("a support user can approve another support user's refund under $50", async () => {
+    const approval = await propose(USERS.sam, REFUND_KIND, payload({ amountCents: 4999 }));
+    await approve(SIA, approval.id);
+    await execute(approval.id);
+
+    expect(await appTestDb.refund.count()).toBe(1);
+    expect(await appTestDb.paymentProviderCall.count()).toBe(1);
+  });
+
+  it("a support user gets 403 when approving a refund of $50 or more", async () => {
+    const approval = await propose(USERS.sam, REFUND_KIND, payload({ amountCents: 5000 }));
+    await expect(approve(SIA, approval.id)).rejects.toThrow(/403/);
+    expect(await appTestDb.refund.count()).toBe(0);
+  });
+
+  it("an ops lead can still approve a refund under $50", async () => {
+    const approval = await propose(USERS.sam, REFUND_KIND, payload({ amountCents: 1000 }));
+    const decided = await approve(USERS.olivia, approval.id);
+
+    expect(decided.status).toBe("approved");
   });
 
   it("executing an approved refund twice records exactly one payment provider call", async () => {

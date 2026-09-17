@@ -1,5 +1,6 @@
 import { can, type Principal } from "@/platform";
 import { approveRefund, proposeRefund, rejectRefund } from "./actions";
+import { approveActionFor } from "./kind";
 import { REASON_CODES, isReasonCode } from "./reasons";
 import { NOTE_LABEL, REASON_LABELS } from "./copy";
 import { ActingAs, Pill, money, shortDate, shortTime } from "@/app/ui";
@@ -60,8 +61,9 @@ export function RefundsPage({
       <h1>Refunds</h1>
       <ActingAs user={user} />
       <p className="muted">
-        Proposing needs <code>refund.propose</code>; deciding needs <code>refund.approve</code> and
-        never works on your own proposal.
+        Proposing needs <code>refund.propose</code>; deciding needs <code>refund.approve</code> (or{" "}
+        <code>refund.approve.small</code> for refunds under $50) and never works on your own
+        proposal.
       </p>
       {message ? <p className="flash">{message}</p> : null}
 
@@ -153,6 +155,15 @@ export function RefundsPage({
         <tbody>
           {pending.map((p) => {
             const ownProposal = p.proposedById === user.id;
+            const mayDecide = can(
+              user,
+              approveActionFor({
+                transactionId: p.transactionId,
+                amountCents: p.amountCents,
+                reasonCode: p.reasonCode,
+                note: p.note,
+              }),
+            );
             return (
               <tr key={p.id}>
                 <td className="mono">{p.id.slice(0, 8)}…</td>
@@ -169,7 +180,7 @@ export function RefundsPage({
                   <span className="muted">{shortTime(p.proposedAt)}</span>
                 </td>
                 <td>
-                  {!mayApprove ? (
+                  {!mayDecide ? (
                     <em>not permitted</em>
                   ) : ownProposal ? (
                     <em>your own proposal</em>

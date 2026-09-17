@@ -6,7 +6,8 @@ import type { Action } from "../rbac/roles";
 
 export interface ApprovalKind {
   proposeAction: Action;
-  approveAction: Action;
+  /** Either a fixed action or one chosen from the payload (e.g. a lower bar for small amounts). */
+  approveAction: Action | ((payload: Prisma.JsonValue) => Action);
   /** Runs at most once per approval. Must be idempotent on idempotencyKey. */
   execute(payload: Prisma.JsonValue, ctx: { idempotencyKey: string; tx: Tx }): Promise<unknown>;
 }
@@ -21,6 +22,12 @@ function kindOrThrow(kind: string): ApprovalKind {
   const found = kinds.get(kind);
   if (!found) throw new Error(`unknown approval kind: ${kind}`);
   return found;
+}
+
+function approveActionFor(definition: ApprovalKind, payload: Prisma.JsonValue): Action {
+  return typeof definition.approveAction === "function"
+    ? definition.approveAction(payload)
+    : definition.approveAction;
 }
 
 export async function propose(user: Principal, kind: string, payload: Prisma.InputJsonValue) {
@@ -57,7 +64,7 @@ async function decide(
   return db.$transaction(async (tx) => {
     const approval = await tx.approval.findUniqueOrThrow({ where: { id: approvalId } });
     const definition = kindOrThrow(approval.kind);
-    authorize(user, definition.approveAction);
+    authorize(user, approveActionFor(definition, approval.payload));
     if (approval.proposedById === user.id) {
       throw new ForbiddenError("403: the proposer cannot decide their own proposal");
     }
