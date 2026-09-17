@@ -1,0 +1,108 @@
+name: Classify
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  classify:
+    name: classify
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Collect changed files from the GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            require('node:fs').writeFileSync(
+              'changed-files.txt',
+              files.map((f) => f.filename).join('\n'),
+            );
+            core.info(`changed files:\n${files.map((f) => f.filename).join('\n')}`);
+
+      - name: Check out the base branch for existing-app detection
+        run: |
+          set -euo pipefail
+          git worktree add /tmp/base "origin/${GITHUB_BASE_REF}"
+
+      - name: Run the classifier
+        id: classify
+        run: |
+          set -euo pipefail
+          CLASSIFY_REPO_ROOT=/tmp/base npx tsx scripts/classify/classify.ts \
+            < changed-files.txt > classification.json
+          cat classification.json
+
+      - name: Label, comment and review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { tier, reasons } = JSON.parse(fs.readFileSync('classification.json', 'utf8'));
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            const label = `tier-${tier}`;
+            const colors = { 'tier-0': '0e8a16', 'tier-1': 'fbca04', 'tier-2': 'b60205' };
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: label });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.issues.createLabel({
+                owner,
+                repo,
+                name: label,
+                color: colors[label],
+                description: `Change-tier rails: ${label}`,
+              });
+            }
+
+            for (const stale of Object.keys(colors).filter((name) => name !== label)) {
+              await github.rest.issues
+                .removeLabel({ owner, repo, issue_number, name: stale })
+                .catch((error) => {
+                  if (error.status !== 404) throw error;
+                });
+            }
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] });
+
+            let body = [
+              `**Change tier: ${tier}**`,
+              '',
+              ...reasons.map((reason) => `- ${reason}`),
+            ].join('\n');
+            if (tier === 2) body += '\n\nBlocked pending code owner review';
+
+            await github.rest.issues.createComment({ owner, repo, issue_number, body });
+
+            if (tier === 0) {
+              await github.rest.pulls.createReview({
+                owner,
+                repo,
+                pull_number: issue_number,
+                event: 'APPROVE',
+                body: 'Auto-approved: tier 0 change (see classifier comment)',
+              });
+            }
