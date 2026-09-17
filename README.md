@@ -30,6 +30,11 @@ Tests run against a real Postgres test database, with one command:
 npm test
 ```
 
+`npm test` starts the compose stack only if nothing is answering already, creates
+the `app_user` role if needed and resets the schema, so the same command works
+locally and against the bare Postgres service container in CI (where only a
+superuser `DATABASE_URL` is provided).
+
 ## How it fits together
 
 - `src/platform/auth` — `AuthProvider` interface. `SeededAuthProvider` reads a
@@ -63,5 +68,6 @@ tamper demo only. The app runs as `app_user`.
 
 ## Not in this branch
 
-The refunds and feature-flag apps, `scripts/classify/`, and CI workflows. The
-`/controls` page therefore reports zero payment-provider calls.
+The refunds and feature-flag apps. The `/controls` page therefore reports zero
+payment-provider calls, and the `src/apps/**` import fence has nothing to scan
+yet.
