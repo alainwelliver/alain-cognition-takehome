@@ -3,6 +3,7 @@ import { adminTestDb, appTestDb, resetDatabase, USERS } from "../../test/db";
 import { approve, execute, propose, reject } from "@/platform";
 import { REFUND_KIND, parsePayload } from "./kind";
 import { REASON_CODES } from "./reasons";
+import { NOTE_LABEL, REASON_LABELS } from "./copy";
 
 const SIA = {
   id: "u_support_2",
@@ -29,7 +30,9 @@ beforeEach(async () => {
   await adminTestDb.transaction.create({ data: TXN });
 });
 
-function payload(overrides: Partial<{ amountCents: number; reasonCode: string }> = {}) {
+function payload(
+  overrides: Partial<{ amountCents: number; reasonCode: string; note: string }> = {},
+) {
   return {
     transactionId: TXN.id,
     amountCents: 2500,
@@ -44,6 +47,14 @@ describe("the refunds app", () => {
     const approval = await propose(USERS.sam, REFUND_KIND, payload());
     await expect(approve(USERS.sam, approval.id)).rejects.toThrow(/403/);
     expect(await appTestDb.refund.count()).toBe(0);
+  });
+
+  it("the proposer's free-text notes are stored on the pending approval for the approver to read", async () => {
+    const note = "Customer emailed twice.\nSecond charge was a duplicate; see ticket #4821.";
+    const approval = await propose(USERS.sam, REFUND_KIND, payload({ note }));
+    const pending = await appTestDb.approval.findUniqueOrThrow({ where: { id: approval.id } });
+    expect(pending.status).toBe("pending");
+    expect(parsePayload(pending.payload).note).toBe(note);
   });
 
   it("an engineer gets 403 when proposing a refund", async () => {
@@ -141,5 +152,16 @@ describe("the refunds app", () => {
 
   it("a proposal for a zero or negative amount is refused", () => {
     expect(() => parsePayload(payload({ amountCents: 0 }))).toThrow(/positive/);
+  });
+
+  it("every reason code has a plain-English label and the notes box says who it is for", () => {
+    for (const code of REASON_CODES) {
+      const label = REASON_LABELS[code];
+      expect(label).not.toBe(code);
+      expect(label).not.toMatch(/_/);
+      expect(label).toMatch(/^[A-Z]/);
+    }
+    expect(NOTE_LABEL).toMatch(/approver/i);
+    expect(NOTE_LABEL).toMatch(/optional/i);
   });
 });

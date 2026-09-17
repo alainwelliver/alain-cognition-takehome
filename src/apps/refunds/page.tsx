@@ -1,7 +1,12 @@
 import { can, type Principal } from "@/platform";
 import { approveRefund, proposeRefund, rejectRefund } from "./actions";
 import { approveActionFor } from "./kind";
-import { REASON_CODES } from "./reasons";
+import { REASON_CODES, isReasonCode } from "./reasons";
+import { NOTE_LABEL, REASON_LABELS } from "./copy";
+
+function reasonLabel(code: string): string {
+  return isReasonCode(code) ? REASON_LABELS[code] : code;
+}
 
 export interface TransactionRow {
   id: string;
@@ -113,11 +118,16 @@ export function RefundsPage({
                       <select name="reasonCode" defaultValue={REASON_CODES[0]}>
                         {REASON_CODES.map((code) => (
                           <option key={code} value={code}>
-                            {code}
+                            {REASON_LABELS[code]}
                           </option>
                         ))}
                       </select>
-                      <input type="text" name="note" placeholder="note (optional)" />
+                      <textarea
+                        name="note"
+                        rows={3}
+                        placeholder={NOTE_LABEL}
+                        aria-label={NOTE_LABEL}
+                      />
                       <button type="submit">Propose</button>
                     </form>
                   )}
@@ -137,7 +147,7 @@ export function RefundsPage({
             <th>transaction</th>
             <th>amount</th>
             <th>reason</th>
-            <th>note</th>
+            <th>notes</th>
             <th>proposed by</th>
             <th>decide</th>
           </tr>
@@ -163,8 +173,8 @@ export function RefundsPage({
                   <code>{p.transactionId}</code>
                 </td>
                 <td>{money(p.amountCents)}</td>
-                <td>{p.reasonCode}</td>
-                <td>{p.note}</td>
+                <td>{reasonLabel(p.reasonCode)}</td>
+                <td style={{ whiteSpace: "pre-wrap" }}>{p.note || <em>none</em>}</td>
                 <td>{p.proposedById}</td>
                 <td>
                   {!mayDecide ? (
@@ -208,7 +218,7 @@ export function RefundsPage({
                 <code>{r.transactionId}</code>
               </td>
               <td>{money(r.amountCents)}</td>
-              <td>{r.reasonCode}</td>
+              <td>{reasonLabel(r.reasonCode)}</td>
               <td>
                 <code>{r.approvalId}</code>
               </td>
